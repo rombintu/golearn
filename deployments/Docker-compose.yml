@@ -1,0 +1,68 @@
+version: '3.9'
+services:
+  golearn-server:
+    container_name: golearn-server
+    build: deployments/Dockerfile.server
+    restart: always
+    ports:
+      - 5000:5000
+    volumes:
+      - ./config:/server/config
+
+  golearn-client:
+    container_name: golearn-client
+    build: deployments/Dockerfile.client
+    restart: always
+    ports:
+      - 5001:5001
+    volumes:
+      - ./config:/server/config
+  
+  database:
+    container_name: database
+    image: postgres:12
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=
+      - POSTGRES_DB=
+      - POSTGRES_USER=
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volumes/database/data:/var/lib/postgresql/data
+
+  nextcloud:
+    image: nextcloud:23.0
+    restart: always
+    ports:
+      - 8080:80
+    links:
+      - database
+    volumes:
+      - ./volumes/nextcloud:/var/www/html
+    environment:
+      - POSTGRES_PASSWORD=
+      - POSTGRES_DB=
+      - POSTGRES_USER=
+      - POSTGRES_HOST=database
+
+  giea:
+    image: gitea/gitea:1.16.0
+    container_name: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=database:5432
+      - GITEA__database__NAME=
+      - GITEA__database__USER=
+      - GITEA__database__PASSWD=
+    restart: always
+    volumes:
+      - ./volumes/gitea:/data
+      - ./volumes/.ssh/:/data/git/.ssh
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "222:22"

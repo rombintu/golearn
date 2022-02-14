@@ -1,0 +1,25 @@
+# vendor
+vendor/*
+
+# binary
+build/*
+
+# private
+config/client.toml
+config/server.toml
+*.db
+
+# trash
+.vscode
+
+# logs
+*.log
+
+# tests
+*.http
+
+# docker volumes
+volumes/*
+
+# logs
+*.log
