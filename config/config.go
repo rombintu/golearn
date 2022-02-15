@@ -30,11 +30,17 @@ type Sqlite3 struct {
 	Path string
 }
 
+type Client struct {
+	Host string
+	Port string
+}
+
 type Config struct {
 	Default  Default
 	Server   Server
 	Postgres Postgres
 	Sqlite3  Sqlite3
+	Client   Client
 }
 
 // Return configuration

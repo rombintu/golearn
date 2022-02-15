@@ -66,8 +66,10 @@ func (s *Server) Auth() gin.HandlerFunc {
 			respondWithError(c, 401, err.Error())
 			return
 		}
-
-		c.JSON(http.StatusCreated, token)
+		jsdata := map[string]string{
+			"token": token,
+		}
+		c.JSON(http.StatusCreated, jsdata)
 	}
 }
 

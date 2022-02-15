@@ -1,14 +1,20 @@
 [Default]
-loglevel="debug"
+Loglevel="debug"
+LogFile = "./logs/server.log"
 
 [Server]
-host="0.0.0.0"
-port=":5000"
-secret=""
+Host="0.0.0.0"
+Port=":5000"
+Secret=""
 
 [Postgres]
-dev = true
-user=""
-password=""
-dbname=""
-sslmode=""
+Dev = true
+User=""
+Password=""
+Dbname=""
+Sslmode=""
+
+[Sqlite3]
+Path = "./store/dev.db"
+
+[Client]
