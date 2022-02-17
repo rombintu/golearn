@@ -5,28 +5,31 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/rombintu/golearn/external/client"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
 type Terminal struct {
 	CLI        *cli.App
-	Output     *log.Logger
+	Logger     *log.Logger
 	InterStore map[string]string
+	Client     *client.Client
 }
 
-func NewTerminal(progName, progUsage string) *Terminal {
+func NewTerminal(progName, progUsage string, config *client.Client) *Terminal {
 	termCLI := cli.NewApp()
 	termCLI.Name = progName
 	termCLI.Usage = progUsage
 
-	output := log.New()
-	output.SetLevel(log.InfoLevel)
+	logger := log.New()
+	logger.SetLevel(log.InfoLevel)
 
 	return &Terminal{
 		CLI:        termCLI,
-		Output:     output,
+		Logger:     logger,
 		InterStore: make(map[string]string),
+		Client:     config,
 	}
 }
 

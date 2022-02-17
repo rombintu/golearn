@@ -35,6 +35,7 @@ func main() {
 		<-exitCh
 		log.Println("Exit with 0")
 		s.CloseLogFile()
+		s.Store.Close()
 		os.Exit(0)
 	}()
 

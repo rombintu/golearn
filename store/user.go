@@ -1,63 +1,28 @@
 package store
 
 func (s *Store) CreateUser(user User) error {
-	if err := s.Open(); err != nil {
-		return err
-	}
-	defer s.Database.Close()
-	_, err := s.Database.Exec(
-		"INSERT INTO users (account, password, role) VALUES ($1, $2, $3)",
-		user.Account,
-		user.Password,
-		user.Role,
-	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return s.Database.Create(&User{
+		Account:  user.Account,
+		Password: user.Password,
+		Role:     user.Role,
+	}).Error
 }
 
 func (s *Store) GetUser(id int) (User, error) {
-	if err := s.Open(); err != nil {
-		return User{}, err
-	}
-	defer s.Database.Close()
-	rows, err := s.Database.Query("SELECT account, password, role FROM users WHERE id=$1", id)
+	var user User
+	err := s.Database.First(&user, id).Error
 	if err != nil {
 		return User{}, err
 	}
-	rows.Next()
-	var user User
-	if err := rows.Scan(&user.Account, &user.Password, &user.Role); err != nil {
-		return User{}, err
-	}
-
-	if err := rows.Close(); err != nil {
-		return User{}, err
-	}
-
 	return user, nil
 }
 
 // TODO Unique account
 func (s *Store) GetUserByAccount(account string) (User, error) {
-	if err := s.Open(); err != nil {
-		return User{}, err
-	}
-	defer s.Database.Close()
-	rows, err := s.Database.Query("SELECT account, password, role FROM users WHERE account=$1", account)
+	var user User
+	err := s.Database.First(&user, "account = ?", account).Error
 	if err != nil {
 		return User{}, err
 	}
-	rows.Next()
-	var user User
-	if err := rows.Scan(&user.Account, &user.Password, &user.Role); err != nil {
-		return User{}, err
-	}
-
-	if err := rows.Close(); err != nil {
-		return User{}, err
-	}
-
 	return user, nil
 }

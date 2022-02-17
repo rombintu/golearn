@@ -1,16 +1,17 @@
 package store
 
 import (
-	"database/sql"
 	"fmt"
+	"log"
 
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/rombintu/golearn/config"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite" // Sqlite driver based on GGO
+	"gorm.io/gorm"
 )
 
 type Store struct {
-	Database *sql.DB
+	Database *gorm.DB
 	Config   *config.Postgres
 }
 
@@ -28,14 +29,14 @@ func (s *Store) Open() error {
 			s.Config.Dbname,
 			s.Config.SSLMode,
 		)
-		db, err := sql.Open("postgres", connStr)
+		db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 		if err != nil {
 			return err
 		}
 		s.Database = db
 		return nil
 	}
-	db, err := sql.Open("sqlite3", "./store/dev.db")
+	db, err := gorm.Open(sqlite.Open("./store/dev.db"), &gorm.Config{})
 	if err != nil {
 		return err
 	}
@@ -44,5 +45,9 @@ func (s *Store) Open() error {
 }
 
 func (s *Store) Close() {
-	s.Database.Close()
+	db, err := s.Database.DB()
+	if err != nil {
+		log.Println(err)
+	}
+	db.Close()
 }

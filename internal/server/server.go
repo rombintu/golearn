@@ -108,5 +108,20 @@ func (s *Server) ConfigureStore() error {
 	s.Store = &store.Store{
 		Config: &s.Config.Postgres,
 	}
+	s.Store.Open()
+	s.Store.Database.AutoMigrate(
+		&store.User{},
+		&store.Worker{},
+		&store.Teacher{},
+		&store.Declaration{},
+		&store.Course{},
+		&store.Journal{},
+		&store.Contract{},
+		&store.Payment{},
+		&store.Services{},
+		&store.Refferal{},
+		&store.Group{},
+		&store.StudentGroup{},
+	)
 	return nil
 }

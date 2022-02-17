@@ -7,13 +7,11 @@ import (
 
 	"github.com/rombintu/golearn/config"
 	"github.com/rombintu/golearn/external"
-	"github.com/rombintu/golearn/internal/client"
+	"github.com/rombintu/golearn/external/client"
 	"github.com/urfave/cli"
 )
 
-func buildClientCLI(term *external.Terminal, conf *config.Config) {
-	// term.InterStore["host"] = conf.Client.Host
-	// term.InterStore["port"] = conf.Client.Port
+func buildClientCLI(term *external.Terminal) {
 	flags := []cli.Flag{
 		cli.StringFlag{
 			Name:     "login",
@@ -36,13 +34,11 @@ func buildClientCLI(term *external.Terminal, conf *config.Config) {
 			Name:  "ping",
 			Usage: "Ping to server",
 			Action: func(c *cli.Context) error {
-				ping, err := client.PingServer(
-					conf.Client.Host + conf.Client.Port,
-				)
+				ping, err := term.Client.PingServer()
 				if err != nil {
 					return err
 				}
-				term.Output.Info(ping)
+				term.Logger.Info(ping)
 				return nil
 			},
 		},
@@ -53,8 +49,7 @@ func buildClientCLI(term *external.Terminal, conf *config.Config) {
 			Usage: "Authentification (get token)",
 			Flags: flags,
 			Action: func(c *cli.Context) error {
-				token, err := client.GetToken(
-					conf.Client.Host+conf.Client.Port,
+				token, err := term.Client.GetToken(
 					c.String("login"),
 					c.String("pass"),
 					c.String("role"),
@@ -62,7 +57,12 @@ func buildClientCLI(term *external.Terminal, conf *config.Config) {
 				if err != nil {
 					return err
 				}
-				term.Output.Info(token)
+				if token != "" {
+					term.Logger.Infof("Your token is: %s", token)
+				} else {
+					term.Logger.Error("User not found")
+				}
+
 				return nil
 			},
 		},
@@ -73,14 +73,14 @@ func main() {
 	configPath := flag.String("config", "./config/client.toml", "Path to config file")
 	flag.Parse()
 
-	config := config.GetConfig(*configPath)
-
-	terminal := external.NewTerminal("Golearncli", "Golearn CLI")
+	config := config.GetClientConfig(*configPath)
+	client := client.NewClient(config)
+	terminal := external.NewTerminal("Golearncli", "Golearn CLI", client)
 	if err := terminal.Building(); err != nil {
 		log.Fatal(err)
 	}
 
-	buildClientCLI(terminal, config)
+	buildClientCLI(terminal)
 
 	err := terminal.CLI.Run(os.Args)
 	if err != nil {

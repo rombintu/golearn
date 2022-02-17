@@ -30,9 +30,17 @@ type Sqlite3 struct {
 	Path string
 }
 
-type Client struct {
-	Host string
-	Port string
+type DefaultClient struct {
+	Host string `toml:"Host"`
+	Port string `toml:"Port"`
+}
+
+type Private struct {
+	Token string `toml:"Token"`
+}
+type ConfigClient struct {
+	Default DefaultClient
+	Private Private
 }
 
 type Config struct {
@@ -40,7 +48,6 @@ type Config struct {
 	Server   Server
 	Postgres Postgres
 	Sqlite3  Sqlite3
-	Client   Client
 }
 
 // Return configuration
@@ -51,6 +58,21 @@ func GetConfig(path string) *Config {
 	}
 
 	var conf Config
+
+	if _, err := toml.Decode(string(confFile), &conf); err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	return &conf
+}
+
+func GetClientConfig(path string) *ConfigClient {
+	confFile, err := os.ReadFile(path)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	var conf ConfigClient
 
 	if _, err := toml.Decode(string(confFile), &conf); err != nil {
 		log.Fatalf("%v", err)
