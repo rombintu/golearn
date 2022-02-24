@@ -33,12 +33,13 @@
 
 ## Разработка
 ```bash
-sqlite3 dev.db < config/migrate.sql
 cp config/server.toml.bak config/server.toml
 cp config/client.toml.bak config/client.toml
 make run_server
 ```
 
+### Клиент
+[Примеры](./examples/README.md)
 ## Теги. Версии. Разработка
 v0.0.3
 * Инициализация моделей сущностей

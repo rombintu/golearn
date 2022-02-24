@@ -59,7 +59,7 @@ func (s *Server) CreateUser() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) GetUser() gin.HandlerFunc {
+func (s *Server) GetUserByID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		idStr := c.Query("id")
@@ -69,7 +69,7 @@ func (s *Server) GetUser() gin.HandlerFunc {
 			s.Logger.Error(err)
 			return
 		}
-		user, err := s.Store.GetUser(id)
+		user, err := s.Store.GetUserByID(id)
 		if err != nil {
 			s.Logger.Error(err)
 			respondWithError(c, 401, err.Error())
@@ -77,5 +77,37 @@ func (s *Server) GetUser() gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, user)
+	}
+}
+
+func (s *Server) CreateStudentGroup() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var g store.StudentGroup
+		Ok := store.Ping{
+			Message: "group created",
+		}
+
+		if err := c.BindJSON(&g); err != nil {
+			s.Logger.Debug(err)
+			respondWithError(c, 400, "group not created")
+			return
+		}
+
+		title := g.Group.Title
+
+		if title == "" {
+			s.Logger.Debug("Some group fields is empty")
+			respondWithError(c, 400, "Some group fields is empty")
+			return
+		}
+
+		if err := s.Store.CreateStudentGroup(g); err != nil {
+			s.Logger.Debug(err)
+			respondWithError(c, 400, err.Error())
+			return
+		}
+
+		c.JSON(http.StatusCreated, Ok)
 	}
 }

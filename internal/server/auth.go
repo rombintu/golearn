@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rombintu/golearn/store"
+	"github.com/rombintu/golearn/tools"
 )
 
 const minSecretKeySize = 32
@@ -44,13 +45,19 @@ func (s *Server) Auth() gin.HandlerFunc {
 			respondWithError(c, 401, err.Error())
 			return
 		}
+
 		verifyUser, err := s.Store.GetUserByAccount(user.Account)
 		if err != nil {
 			s.Logger.Error(err)
 			respondWithError(c, 401, "user not found")
 			return
 		}
-		if verifyUser.Password != user.Password {
+		hashVerPass, err := tools.HashPassword(user.Password)
+		if err != nil {
+			return
+		}
+
+		if tools.CheckPasswordHash(verifyUser.Password, hashVerPass) {
 			respondWithError(c, 403, "not authorized")
 			return
 		}

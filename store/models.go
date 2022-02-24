@@ -8,15 +8,16 @@ import (
 
 // User model for db
 type User struct {
-	// Id          int           `json:"id"`
 	gorm.Model
-	Account     string        `json:"account"`
-	Password    string        `json:"password"`
-	Role        string        `json:"role"`
-	Address     string        `json:"address"`
-	Mail        string        `json:"mail"`
-	Phone       string        `json:"phone"`
-	DateOfBirth time.Duration `json:"date_of_birth"`
+	Account           string        `json:"account" gorm:"unique"`
+	Password          string        `json:"password"`
+	Role              string        `json:"role"`
+	Address           string        `json:"address"`
+	Mail              string        `json:"mail"`
+	Phone             string        `json:"phone"`
+	DateOfBirth       time.Duration `json:"date_of_birth"`
+	StudentGroupRefer int
+	StudentGroup      StudentGroup `gorm:"foreignKey:StudentGroupRefer"`
 }
 
 type Worker struct {
@@ -33,15 +34,16 @@ type Teacher struct {
 }
 
 type OfficePaper struct {
-	// Id    int    `json:"id"`
 	gorm.Model
 	Title string `json:"title"`
 }
 
 type Declaration struct {
 	OfficePaper
-	Date    time.Duration `json:"date"`
-	Content string        `json:"content"`
+	Date      time.Duration `json:"date"`
+	Content   string        `json:"content"`
+	UserRefer int
+	User      User `gorm:"foreignKey:UserRefer"`
 }
 
 type Course struct {
@@ -60,6 +62,10 @@ type Contract struct {
 	ValidatyPeriod time.Duration `json:"validaty_period"`
 	Content        string        `json:"content"`
 	Amount         int           `json:"amount"`
+	UserRefer      int
+	User           User `gorm:"foreignKey:UserRefer"`
+	WorkerRefer    int
+	Worker         Worker `gorm:"foreignKey:WorkerRefer"`
 }
 
 type Payment struct {
@@ -80,8 +86,23 @@ type Refferal struct {
 	ServiceAmount int           `json:"service_amount"`
 }
 
+type Plan struct {
+	OfficePaper
+	DateStart    time.Duration
+	DateEnd      time.Duration
+	Kind         string
+	Place        string
+	Agree        bool
+	DateTransfer time.Duration
+	GroupRefer   int
+	Group        Group `gorm:"foreignKey:GroupRefer"`
+	TeacherRefer int
+	Teacher      Teacher `gorm:"foreignKey:TeacherRefer"`
+	CourseRefer  int
+	Course       Course `gorm:"foreignKey:CourceRefer"`
+}
+
 type Group struct {
-	// Id    int    `json:"id"`
 	gorm.Model
 	Title string `json:"title"`
 }

@@ -99,7 +99,8 @@ func (s *Server) ConfigureRouter() {
 
 	// Middleware: req token (manager)
 	s.Router.Use(s.VerifyTokenManager())
-	s.Router.GET("/user", s.GetUser())
+	s.Router.GET("/user", s.GetUserByID())
+	s.Router.POST("/group", s.CreateStudentGroup())
 
 }
 

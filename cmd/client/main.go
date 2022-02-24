@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"os"
 
@@ -58,7 +57,7 @@ func buildClientCLI(term *external.Terminal) {
 					return err
 				}
 				if token != "" {
-					term.Logger.Infof("Your token is: %s", token)
+					term.Logger.Infof("Your token: %s", token)
 				} else {
 					term.Logger.Error("User not found")
 				}
@@ -70,10 +69,18 @@ func buildClientCLI(term *external.Terminal) {
 }
 
 func main() {
-	configPath := flag.String("config", "./config/client.toml", "Path to config file")
-	flag.Parse()
+	// configPath := flag.String("config", "./config/client.toml", "Path to config file")
+	// help := flag.Bool("help", false, "Print defaults")
+	// flag.Parse()
 
-	config := config.GetClientConfig(*configPath)
+	// if *help {
+	// 	flag.PrintDefaults()
+	// 	fmt.Println("  Commands: \n\t- auth\n\t- ping")
+	// 	os.Exit(0)
+	// }
+
+	// config := config.GetClientConfig(*configPath)
+	config := config.GetClientConfig("./config/client.toml")
 	client := client.NewClient(config)
 	terminal := external.NewTerminal("Golearncli", "Golearn CLI", client)
 	if err := terminal.Building(); err != nil {
