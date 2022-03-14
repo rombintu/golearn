@@ -1,16 +1,16 @@
 [Default]
-Loglevel="debug"
+Loglevel ="debug"
 LogFile = "./logs/server.log"
 
 [Server]
-Host="0.0.0.0"
-Port=":5000"
-Secret=""
+Host = "0.0.0.0"
+Port = ":5000"
+Secret = ""
 
 [Postgres]
 Dev = true
-User=""
-Password=""
-Dbname=""
-Sslmode=""
-Sqlite3="./store/dev.db"
+User = ""
+Password = ""
+Dbname = ""
+Sslmode = ""
+Sqlite3 = "./store/dev.db"

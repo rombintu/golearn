@@ -1,6 +1,6 @@
 [Default]
-Host="0.0.0.0"
-Port="5000"
+Host = "0.0.0.0"
+Port = "5000"
 
 [Private]
-Token=""
+Token = ""
