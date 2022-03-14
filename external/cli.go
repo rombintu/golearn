@@ -3,6 +3,7 @@ package external
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/rombintu/golearn/external/client"
@@ -34,11 +35,15 @@ func NewTerminal(progName, progUsage string, config *client.Client) *Terminal {
 }
 
 func (t *Terminal) getInterStore() error {
-	data, err := os.ReadFile("./version.json")
+	file, err := os.Open("./version.json")
 	if err != nil {
 		return err
 	}
-
+	defer file.Close()
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
 	var version map[string]string
 
 	if err := json.Unmarshal(data, &version); err != nil {
