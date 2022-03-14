@@ -36,7 +36,7 @@ func (s *Store) Open() error {
 		s.Database = db
 		return nil
 	}
-	db, err := gorm.Open(sqlite.Open("./store/dev.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(s.Config.Sqlite3), &gorm.Config{})
 	if err != nil {
 		return err
 	}

@@ -25,10 +25,7 @@ type Postgres struct {
 	Password string
 	Dbname   string
 	SSLMode  string
-}
-
-type Sqlite3 struct {
-	Path string
+	Sqlite3  string
 }
 
 type DefaultClient struct {
@@ -48,7 +45,6 @@ type Config struct {
 	Default  Default
 	Server   Server
 	Postgres Postgres
-	Sqlite3  Sqlite3
 }
 
 // Return configuration

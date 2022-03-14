@@ -1,1 +1,5 @@
 FROM golang:1.16-alpine
+WORKDIR /golearn
+COPY . .
+RUN go build -o golearn-server cmd/server/main.go
+CMD ["golearn-server"]

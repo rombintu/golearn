@@ -23,7 +23,7 @@ func main() {
 	config := config.GetConfig(*configPath)
 
 	if *dev {
-		config.Sqlite3.Path = *sqlitePath
+		config.Postgres.Sqlite3 = *sqlitePath
 		config.Default.LogFile = *logPath
 	}
 
