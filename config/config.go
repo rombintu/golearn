@@ -1,6 +1,7 @@
 package config
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -52,14 +53,20 @@ type Config struct {
 
 // Return configuration
 func GetConfig(path string) *Config {
-	confFile, err := os.ReadFile(path)
+	confFile, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	defer confFile.Close()
+
+	content, err := ioutil.ReadAll(confFile)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	var conf Config
 
-	if _, err := toml.Decode(string(confFile), &conf); err != nil {
+	if _, err := toml.Decode(string(content), &conf); err != nil {
 		log.Fatalf("%v", err)
 	}
 
@@ -67,14 +74,21 @@ func GetConfig(path string) *Config {
 }
 
 func GetClientConfig(path string) *ConfigClient {
-	confFile, err := os.ReadFile(path)
+	confFile, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	defer confFile.Close()
+
+	content, err := ioutil.ReadAll(confFile)
+
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	var conf ConfigClient
 
-	if _, err := toml.Decode(string(confFile), &conf); err != nil {
+	if _, err := toml.Decode(string(content), &conf); err != nil {
 		log.Fatalf("%v", err)
 	}
 

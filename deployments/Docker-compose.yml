@@ -13,8 +13,8 @@ services:
     container_name: golearn-client
     build: deployments/Dockerfile.client
     restart: always
-    ports:
-      - 5001:5001
+    # ports:
+    #   - 5001:5001
     volumes:
       - ./config:/server/config
   

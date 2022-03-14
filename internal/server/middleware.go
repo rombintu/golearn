@@ -27,7 +27,7 @@ func (s *Server) VerifyToken() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) VerifyTokenManager() gin.HandlerFunc {
+func (s *Server) VerifyTokenAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("token")
 		if token == "" {
