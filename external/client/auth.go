@@ -63,3 +63,21 @@ func (c *Client) GetToken(login, pass, role string) (string, error) {
 	}
 	return res["token"], nil
 }
+
+func (c *Client) GetMyID() (string, error) {
+	token := c.Config.Private.Token
+
+	uri := fmt.Sprintf("http://%s:%s/user/token", c.Config.Default.Host, c.Config.Default.Port)
+
+	resp, err := http.Get(uri)
+	if err != nil {
+		return "", err
+	}
+	resp.Header.Add("token", token)
+	var res map[string]string
+
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return "", err
+	}
+	return res["token"], nil
+}

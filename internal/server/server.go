@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rombintu/golearn/config"
 	"github.com/rombintu/golearn/store"
+	"github.com/rombintu/golearn/tools"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,8 +32,11 @@ func NewApp(config *config.Config) *Server {
 // Init
 func (s *Server) Start() error {
 	s.Logger.Debug("Configure Logger")
-	if err := s.OpenLogFile(); err != nil {
-		return err
+
+	if s.Config.Default.LogFile != "" {
+		if err := s.OpenLogFile(); err != nil {
+			return err
+		}
 	}
 	if err := s.ConfigureLogger(); err != nil {
 		return err
@@ -77,7 +81,9 @@ func (s *Server) ConfigureLogger() error {
 	if err != nil {
 		return err
 	}
-	s.Logger.SetOutput(s.LogFile)
+	if s.Config.Default.LogFile != "" {
+		s.Logger.SetOutput(s.LogFile)
+	}
 	s.Logger.SetLevel(level)
 
 	return nil
@@ -94,19 +100,31 @@ func (s *Server) ConfigureRouter() {
 	// Get token
 	s.Router.POST("/auth", s.Auth())
 
+	// =================== required USER auth =================== //
 	// Middleware: req token (user)
 	s.Router.Use(s.VerifyToken())
 
+	// Create new declaration: {title, user_id}
+	s.Router.POST("/paper/declaration/create", s.CreateDeclaration())
+	// Get all declarations by user id: user_id?
+	s.Router.GET("/paper/declaration/list", s.GetDeclarationByUserID())
+	// Delete declaration by user id and title; if title == nil => title = *
+	s.Router.POST("/paper/declaration/delete", s.DeleteDeclarationByUserIDAndTitle())
+
+	// =================== required ADMIN auth =================== //
 	// Middleware: req token (admin)
 	s.Router.Use(s.VerifyTokenAdmin())
 
-	// require: id INT, [type STR]
+	// require: id? [type]?
 	s.Router.GET("/user", s.GetUserByID())
 
 	// Create workers && teachers
-	s.Router.POST("/worker", s.CreateWorker())
-	s.Router.POST("/teacher", s.CreateTeacher())
-	s.Router.POST("/group", s.CreateStudentGroup())
+	s.Router.POST("/user/worker", s.CreateWorker())
+	s.Router.POST("/user/teacher", s.CreateTeacher())
+	s.Router.POST("/group", s.CreateGroup())
+
+	// Join User on Group: user_login? group_name?
+	s.Router.POST("/group/join", s.JoinUserGroup())
 
 }
 
@@ -128,7 +146,30 @@ func (s *Server) ConfigureStore() error {
 		&store.Services{},
 		&store.Refferal{},
 		&store.Group{},
-		&store.StudentGroup{},
+		// &store.UserGroup{},
 	)
+	if err := s.Store.Database.SetupJoinTable(
+		&store.Group{},
+		"Users",
+		&store.GroupUsers{},
+	); err != nil {
+		return err
+	}
+	// FOR DEV
+
+	hashPass, err := tools.HashPassword("admin")
+	if err != nil {
+		return err
+	}
+
+	admin := store.User{
+		Account:  "admin",
+		Password: hashPass,
+		Role:     "admin",
+	}
+
+	if err := s.Store.Database.FirstOrCreate(&admin).Error; err != nil {
+		return err
+	}
 	return nil
 }

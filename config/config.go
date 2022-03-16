@@ -34,7 +34,9 @@ type DefaultClient struct {
 }
 
 type Private struct {
-	Token string `toml:"Token"`
+	Token    string `toml:"Token"`
+	Login    string `toml:"Login"`
+	Password string `toml:"Password"`
 }
 type ConfigClient struct {
 	Default DefaultClient

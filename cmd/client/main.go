@@ -11,23 +11,24 @@ import (
 )
 
 func buildClientCLI(term *external.Terminal) {
-	flags := []cli.Flag{
-		cli.StringFlag{
-			Name:     "login",
-			Usage:    "Your login",
-			Required: true,
-		},
-		cli.StringFlag{
-			Name:     "pass",
-			Usage:    "Your password",
-			Required: true,
-		},
+	flagsAuth := []cli.Flag{
 		cli.StringFlag{
 			Name:     "role",
 			Usage:    "Your role",
 			Required: false,
 		},
 	}
+	// flagsDeclaration := []cli.Flag{
+	// 	cli.StringFlag{
+	// 		Name:     "action",
+	// 		Usage:    "choose action (create, delete, list)",
+	// 		Required: true,
+	// 	},
+	// 	cli.StringFlag{
+	// 		Name:  "title",
+	// 		Usage: "choose title declaration",
+	// 	},
+	// }
 	term.AddCommand(
 		cli.Command{
 			Name:  "ping",
@@ -46,11 +47,11 @@ func buildClientCLI(term *external.Terminal) {
 		cli.Command{
 			Name:  "auth",
 			Usage: "Authentification (get token)",
-			Flags: flags,
+			Flags: flagsAuth,
 			Action: func(c *cli.Context) error {
 				token, err := term.Client.GetToken(
-					c.String("login"),
-					c.String("pass"),
+					term.Client.Config.Private.Login,
+					term.Client.Config.Private.Password,
 					c.String("role"),
 				)
 				if err != nil {
@@ -66,6 +67,22 @@ func buildClientCLI(term *external.Terminal) {
 			},
 		},
 	)
+	// term.AddCommand(
+	// 	cli.Command{
+	// 		Name:  "declaration",
+	// 		Usage: "Declarations manager (create, delete, list)",
+	// 		Flags: flagsDeclaration,
+	// 		Action: func(c *cli.Context) error {
+	// 			actionParse := c.String("action")
+	// 			title := c.String("title")
+	// 			switch actionParse {
+	// 			case "create":
+	// 				term.Client.CreateDeclaration()
+	// 			}
+	// 			return nil
+	// 		},
+	// 	},
+	// )
 }
 
 func main() {

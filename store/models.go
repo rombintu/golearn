@@ -6,18 +6,21 @@ import (
 	"gorm.io/gorm"
 )
 
+type Message struct {
+	Content string
+}
+
 // User model for db
 type User struct {
 	gorm.Model
-	Account           string        `json:"account" gorm:"unique"`
-	Password          string        `json:"password"`
-	Role              string        `json:"role"`
-	Address           string        `json:"address"`
-	Mail              string        `json:"mail"`
-	Phone             string        `json:"phone"`
-	DateOfBirth       time.Duration `json:"date_of_birth"`
-	StudentGroupRefer int
-	StudentGroup      StudentGroup `gorm:"foreignKey:StudentGroupRefer"`
+	Account     string        `json:"account" gorm:"unique"`
+	Password    string        `json:"password"`
+	Role        string        `json:"role"`
+	Address     string        `json:"address"`
+	Mail        string        `json:"mail"`
+	Phone       string        `json:"phone"`
+	DateOfBirth time.Duration `json:"date_of_birth"`
+	Declaration []Declaration `gorm:"foreignKey:UserID"`
 }
 
 type Worker struct {
@@ -40,10 +43,9 @@ type OfficePaper struct {
 
 type Declaration struct {
 	OfficePaper
-	Date      time.Duration `json:"date"`
-	Content   string        `json:"content"`
-	UserRefer int
-	User      User `gorm:"foreignKey:UserRefer"`
+	Date    time.Duration `json:"date"`
+	Content string        `json:"content"`
+	UserID  int           `json:"user_id"`
 }
 
 type Course struct {
@@ -104,11 +106,13 @@ type Plan struct {
 
 type Group struct {
 	gorm.Model
-	Title string `json:"title"`
-}
-
-type StudentGroup struct {
-	Group
+	Title            string        `json:"title" gorm:"unique"`
 	DateOfEnrollment time.Duration `json:"date_of_enrollment"`
 	DateOfDeducation time.Duration `json:"date_od_deducation"`
+	Users            []User        `gorm:"many2many:group_users;"`
+}
+
+type GroupUsers struct {
+	UserID  int `gorm:"primaryKey"`
+	GroupID int `gorm:"primaryKey"`
 }

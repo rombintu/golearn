@@ -12,13 +12,9 @@ func (s *Server) CreateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		var u store.User
-		Ok := store.Ping{
-			Message: "user created",
-		}
 
 		if err := c.BindJSON(&u); err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, "user not created")
+			s.respondWithError(c, 401, "not created")
 			return
 		}
 
@@ -31,18 +27,16 @@ func (s *Server) CreateUser() gin.HandlerFunc {
 		}
 
 		if account == "" || password == "" {
-			s.Logger.Error("Some user fields is empty")
-			respondWithError(c, 401, "Some user fields is empty")
+			s.respondWithError(c, 401, "Some fields is empty")
 			return
 		}
 
 		if err := s.Store.CreateUser(u); err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, err.Error())
+			s.respondWithError(c, 401, err.Error())
 			return
 		}
 
-		c.JSON(http.StatusCreated, Ok)
+		c.JSON(http.StatusCreated, u)
 	}
 }
 
@@ -50,13 +44,9 @@ func (s *Server) CreateWorker() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		var u store.Worker
-		Ok := store.Ping{
-			Message: "worker created",
-		}
 
 		if err := c.BindJSON(&u); err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, "worker not created")
+			s.respondWithError(c, 401, "not created")
 			return
 		}
 
@@ -69,18 +59,16 @@ func (s *Server) CreateWorker() gin.HandlerFunc {
 		}
 
 		if account == "" || password == "" {
-			s.Logger.Error("Some worker fields is empty")
-			respondWithError(c, 401, "Some worker fields is empty")
+			s.respondWithError(c, 401, "Some fields is empty")
 			return
 		}
 
 		if err := s.Store.CreateWorker(u); err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, err.Error())
+			s.respondWithError(c, 401, err.Error())
 			return
 		}
 
-		c.JSON(http.StatusCreated, Ok)
+		c.JSON(http.StatusCreated, u)
 	}
 }
 
@@ -88,13 +76,9 @@ func (s *Server) CreateTeacher() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		var u store.Teacher
-		Ok := store.Ping{
-			Message: "teacher created",
-		}
 
 		if err := c.BindJSON(&u); err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, "teacher not created")
+			s.respondWithError(c, 401, "not created")
 			return
 		}
 
@@ -107,18 +91,16 @@ func (s *Server) CreateTeacher() gin.HandlerFunc {
 		}
 
 		if account == "" || password == "" {
-			s.Logger.Error("Some teacher fields is empty")
-			respondWithError(c, 401, "Some teacher fields is empty")
+			s.respondWithError(c, 401, "Some fields is empty")
 			return
 		}
 
 		if err := s.Store.CreateTeacher(u); err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, err.Error())
+			s.respondWithError(c, 401, err.Error())
 			return
 		}
 
-		c.JSON(http.StatusCreated, Ok)
+		c.JSON(http.StatusCreated, u)
 	}
 }
 
@@ -129,7 +111,7 @@ func (s *Server) GetUserByID() gin.HandlerFunc {
 		typeUser := c.Query("type")
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
-			s.Logger.Error(err)
+
 			return
 		}
 
@@ -145,8 +127,7 @@ func (s *Server) GetUserByID() gin.HandlerFunc {
 		}
 
 		if err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, err.Error())
+			s.respondWithError(c, 401, err.Error())
 			return
 		}
 

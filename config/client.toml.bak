@@ -3,4 +3,6 @@ Host = "0.0.0.0"
 Port = "5000"
 
 [Private]
+Login = ""
+Password = ""
 Token = ""

@@ -41,15 +41,13 @@ func (s *Server) Auth() gin.HandlerFunc {
 		var user store.User
 
 		if err := c.BindJSON(&user); err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, err.Error())
+			s.respondWithError(c, 401, err.Error())
 			return
 		}
 
 		verifyUser, err := s.Store.GetUserByAccount(user.Account)
 		if err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, "user not found")
+			s.respondWithError(c, 401, "user not found")
 			return
 		}
 		hashVerPass, err := tools.HashPassword(user.Password)
@@ -58,19 +56,17 @@ func (s *Server) Auth() gin.HandlerFunc {
 		}
 
 		if tools.CheckPasswordHash(verifyUser.Password, hashVerPass) {
-			respondWithError(c, 403, "not authorized")
+			s.respondWithError(c, 403, "not authorized")
 			return
 		}
 		maker, err := NewJWTMaker(s.Config.Server.Secret)
 		if err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, err.Error())
+			s.respondWithError(c, 401, err.Error())
 			return
 		}
 		token, err := maker.CreateToken(user.Account, time.Hour)
 		if err != nil {
-			s.Logger.Error(err)
-			respondWithError(c, 401, err.Error())
+			s.respondWithError(c, 401, err.Error())
 			return
 		}
 		jsdata := map[string]string{
