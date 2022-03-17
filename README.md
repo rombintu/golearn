@@ -4,13 +4,15 @@
 * [Русский](./README.md)
 
 ## Обзор
-Автоматизированная система центра повышения квалификации
+Разработка автоматизированной системы в защищенном исполнении центра повышения квалификации научно-производственного предприятия
 
 ## Зависимости 
 ### Для разработки
 * git >= 2.2
 * golang >= 1.15
+* python >= 3.6
 * sqlite3 >= 3.37
+* PyQt >= 5.15
 
 Опционально:
 * make >= 4.0
@@ -37,6 +39,7 @@ cp config/server.toml.bak config/server.toml
 cp config/client.toml.bak config/client.toml
 make run_server
 ```
+Go to http://localhost:5000/ping
 
 ### Клиент
 [Примеры](./examples/README.md)
