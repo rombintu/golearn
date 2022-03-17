@@ -35,8 +35,7 @@
 
 ## Разработка
 ```bash
-cp config/server.toml.bak config/server.toml
-cp config/client.toml.bak config/client.toml
+make pre_run
 make run_server
 ```
 Go to http://localhost:5000/ping

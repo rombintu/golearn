@@ -2,8 +2,7 @@ import sys
 from PyQt5 import QtWidgets
 import requests
 
-import golearn_auth
-import golearn_main
+from lib import golearn_auth, golearn_main 
 
 class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
     def __init__(self, args):
