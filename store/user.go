@@ -2,13 +2,14 @@ package store
 
 import "github.com/rombintu/golearn/tools"
 
-func (s *Store) CreateUser(user User) error {
+func (s *Store) CreateUser(user User) (User, error) {
 	hashPass, err := tools.HashPassword(user.Password)
 	if err != nil {
-		return err
+		return User{}, err
 	}
 	user.Password = hashPass
-	return s.Database.Create(&user).Error
+	tx := s.Database.Create(&user)
+	return user, tx.Error
 }
 
 func (s *Store) CreateWorker(user Worker) error {

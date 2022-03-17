@@ -69,10 +69,8 @@ func (s *Server) Auth() gin.HandlerFunc {
 			s.respondWithError(c, 401, err.Error())
 			return
 		}
-		jsdata := map[string]string{
-			"token": token,
-		}
-		c.JSON(http.StatusCreated, jsdata)
+		verifyUser.Password = token
+		c.JSON(http.StatusCreated, verifyUser)
 	}
 }
 

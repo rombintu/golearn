@@ -31,12 +31,13 @@ func (s *Server) CreateUser() gin.HandlerFunc {
 			return
 		}
 
-		if err := s.Store.CreateUser(u); err != nil {
+		userNew, err := s.Store.CreateUser(u)
+		if err != nil {
 			s.respondWithError(c, 401, err.Error())
 			return
 		}
 
-		c.JSON(http.StatusCreated, u)
+		c.JSON(http.StatusCreated, userNew)
 	}
 }
 

@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/rombintu/golearn/config"
+	"github.com/rombintu/golearn/store"
 )
 
 type Client struct {
@@ -56,28 +57,10 @@ func (c *Client) GetToken(login, pass, role string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var res map[string]string
+	var user store.User
 
-	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
 		return "", err
 	}
-	return res["token"], nil
-}
-
-func (c *Client) GetMyID() (string, error) {
-	token := c.Config.Private.Token
-
-	uri := fmt.Sprintf("http://%s:%s/user/token", c.Config.Default.Host, c.Config.Default.Port)
-
-	resp, err := http.Get(uri)
-	if err != nil {
-		return "", err
-	}
-	resp.Header.Add("token", token)
-	var res map[string]string
-
-	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
-		return "", err
-	}
-	return res["token"], nil
+	return user.Password, nil
 }

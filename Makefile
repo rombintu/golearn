@@ -2,6 +2,8 @@ run_server:
 	go run cmd/server/main.go
 run_client:
 	go run cmd/client/main.go
+run_client_gui:
+	python3 cmd/client/python-gui/main-gui.py
 
 build_win64:
 	GOOS=windows go build -o build/win_x86/golearn-server.exe cmd/server/main.go

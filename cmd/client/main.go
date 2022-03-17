@@ -18,17 +18,21 @@ func buildClientCLI(term *external.Terminal) {
 			Required: false,
 		},
 	}
-	// flagsDeclaration := []cli.Flag{
-	// 	cli.StringFlag{
-	// 		Name:     "action",
-	// 		Usage:    "choose action (create, delete, list)",
-	// 		Required: true,
-	// 	},
-	// 	cli.StringFlag{
-	// 		Name:  "title",
-	// 		Usage: "choose title declaration",
-	// 	},
-	// }
+	flagsDeclaration := []cli.Flag{
+		cli.StringFlag{
+			Name:     "action",
+			Usage:    "choose action (create, delete, list)",
+			Required: true,
+		},
+		cli.StringFlag{
+			Name:  "title",
+			Usage: "choose title declaration",
+		},
+		cli.StringFlag{
+			Name:  "uid",
+			Usage: "user id",
+		},
+	}
 	term.AddCommand(
 		cli.Command{
 			Name:  "ping",
@@ -67,22 +71,20 @@ func buildClientCLI(term *external.Terminal) {
 			},
 		},
 	)
-	// term.AddCommand(
-	// 	cli.Command{
-	// 		Name:  "declaration",
-	// 		Usage: "Declarations manager (create, delete, list)",
-	// 		Flags: flagsDeclaration,
-	// 		Action: func(c *cli.Context) error {
-	// 			actionParse := c.String("action")
-	// 			title := c.String("title")
-	// 			switch actionParse {
-	// 			case "create":
-	// 				term.Client.CreateDeclaration()
-	// 			}
-	// 			return nil
-	// 		},
-	// 	},
-	// )
+	term.AddCommand(
+		cli.Command{
+			Name:  "declaration",
+			Usage: "Declarations manager (create, delete, list)",
+			Flags: flagsDeclaration,
+			Action: func(c *cli.Context) error {
+				action := c.String("action")
+				title := c.String("title")
+				userID := c.String("uid")
+				term.Client.DeclarationAction(action, title, userID)
+				return nil
+			},
+		},
+	)
 }
 
 func main() {
