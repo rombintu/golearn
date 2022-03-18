@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>959</width>
+    <width>1091</width>
     <height>579</height>
    </rect>
   </property>
@@ -115,7 +115,7 @@
        <bool>true</bool>
       </property>
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -138,7 +138,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="listAudit"/>
+        <widget class="QPlainTextEdit" name="plainTextEdit"/>
        </item>
        <item>
         <widget class="QPushButton" name="exportJSONBtn">
@@ -184,7 +184,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>959</width>
+     <width>1091</width>
      <height>24</height>
     </rect>
    </property>

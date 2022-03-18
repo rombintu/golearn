@@ -1,6 +1,7 @@
 import sys 
 from PyQt5 import QtWidgets, QtGui, QtCore
 import requests
+from datetime import datetime
 
 from lib import profile, golearn_auth, golearn_main
 
@@ -21,6 +22,13 @@ class WidgetMyProfile(QtWidgets.QWidget, profile.Ui_Form):
         self.labelAcc.setText(f"Аккаунт ({profileData['account']})")
         self.my_role.setText(profileData['role'])
 
+        self.lineFName.setText(profileData["first_name"])
+        self.lineLName.setText(profileData["last_name"])
+        self.lineAddr.setText(profileData["address"])
+        self.lineMail.setText(profileData["mail"])
+        self.linePhone.setText(profileData["phone"])
+        self.lineBthday.setText(str(profileData["date_of_birth"]))
+
         
 class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
     def __init__(self, args):
@@ -28,20 +36,36 @@ class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
         self.args = args
         self.setupUi(self)
 
-    
+        # self.model = QtGui.QStandardItemModel()
+        # self.listAudit.setModel(self.model)
+        # self.logger = self.listAudit.addI
+        if self.args["role"] == "user":
+            self.pushOpenAdmin.hide()
         # BTNS
         self.pushMyProfile.clicked.connect(self.OpenMyProfile)
 
         # MENU
         self.actionExit.triggered.connect(self.ExitProgramm)
         self.actionby_Nickolsky.triggered.connect(openGithub)
-        
+    
+    def Log(self, item, err=False):
+        # self.model.appendRow(QtGui.QStandardItem(item))
+        flag = ""
+        if err:
+            flag = "ERROR"
+        time = datetime.now().strftime("%H:%M:%S")
+        self.plainTextEdit.appendPlainText(f"[{time}] {flag} {item}")
+
     def OpenMyProfile(self):
         params={"id": self.args["ID"], "type": self.args["role"]}, 
         headers={"token": self.args["password"]}
         payload, err = self.getRequest(self.args, "user", params, headers)
+        if err != None:
+            self.Log(err, True)
+            return
         self.profileWidjet = WidgetMyProfile(payload)
         self.profileWidjet.show()
+        self.Log("Запрос данных аккаунта")
 
     def ExitProgramm(self):
         self.windowAuth = AppAuth()
@@ -55,8 +79,8 @@ class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
         err = None
         try:
             resp = requests.get(
-                f'{uri}/{path}', 
-                params=params,
+                f'{uri}/{path}?id={data["ID"]}&type={data["role"]}', 
+                # params=params,
                 headers=headers,
             )
             payload = resp.json()
@@ -151,6 +175,7 @@ def main():
 
     # DEVELOPMENT
     data = {"server": "http://localhost:5000", "account": "admin", "password": "admin", "role": "admin", }
+    # data = {"server": "http://localhost:5000", "account": "user1", "password": "user1", "role": "user", }
     payload, err = windowAuth.auth(data)
     print(payload)
     if err != None:

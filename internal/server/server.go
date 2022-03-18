@@ -111,12 +111,12 @@ func (s *Server) ConfigureRouter() {
 	// Delete declaration by user id and title; if title == nil => title = *
 	s.Router.POST("/paper/declaration/delete", s.DeleteDeclarationByUserIDAndTitle())
 
+	s.Router.GET("/user", s.GetUserByID())
 	// =================== required ADMIN auth =================== //
 	// Middleware: req token (admin)
 	s.Router.Use(s.VerifyTokenAdmin())
 
 	// require: id? [type]?
-	s.Router.GET("/user", s.GetUserByID())
 
 	// Create workers && teachers
 	s.Router.POST("/user/worker", s.CreateWorker())
