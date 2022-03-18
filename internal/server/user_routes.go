@@ -112,7 +112,7 @@ func (s *Server) GetUserByID() gin.HandlerFunc {
 		typeUser := c.Query("type")
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
-
+			s.respondWithError(c, 401, err.Error())
 			return
 		}
 

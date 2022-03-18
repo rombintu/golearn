@@ -164,6 +164,7 @@
      <string>Помощь</string>
     </property>
     <addaction name="actionGithub"/>
+    <addaction name="actionNoAccess"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -171,6 +172,11 @@
   <action name="actionGithub">
    <property name="text">
     <string>Github</string>
+   </property>
+  </action>
+  <action name="actionNoAccess">
+   <property name="text">
+    <string>Нет доступа</string>
    </property>
   </action>
  </widget>

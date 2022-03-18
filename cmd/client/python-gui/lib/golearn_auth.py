@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'cmd/client/python-gui/golearn_auth.ui'
+# Form implementation generated from reading ui file 'cmd/client/python-gui/ui/golearn_auth.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -83,7 +83,10 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.actionGithub = QtWidgets.QAction(MainWindow)
         self.actionGithub.setObjectName("actionGithub")
+        self.actionNoAccess = QtWidgets.QAction(MainWindow)
+        self.actionNoAccess.setObjectName("actionNoAccess")
         self.menu.addAction(self.actionGithub)
+        self.menu.addAction(self.actionNoAccess)
         self.menubar.addAction(self.menu.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -104,3 +107,4 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "powered by Nickolsky"))
         self.menu.setTitle(_translate("MainWindow", "Помощь"))
         self.actionGithub.setText(_translate("MainWindow", "Github"))
+        self.actionNoAccess.setText(_translate("MainWindow", "Нет доступа"))
