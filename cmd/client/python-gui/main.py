@@ -179,8 +179,7 @@ def main():
     payload, err = windowAuth.auth(data)
     print(payload)
     if err != None:
-        self.label.setText(f"Вход* [{err}]")
-        return
+        print(err)
     windowAuth.showMain(payload)
     windowAuth.close()
 

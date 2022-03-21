@@ -3,6 +3,6 @@
 
 ![alt](./images/auth.png)
 
-<center>2. Окно клиента v0.1.5</center>
+<center>2. Окно клиента v0.1.8</center>
 
-![alt](./images/main.png)
+![alt](./images/main-v0.1.8.png)
