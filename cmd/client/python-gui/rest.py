@@ -40,7 +40,9 @@ class NewRequest:
             headers={"token": self.data["token"]},
         )
         payload = resp.json()
-        payload["server"] = self.data["server"]
+        
+        if type(payload) == "dict":
+            payload["server"] = self.data["server"]
         try:
             err = payload["error"]
         except:

@@ -72,8 +72,8 @@ class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
         super().__init__()
         self.args = args
         self.setupUi(self)
-
         self.req = rest.NewRequest(args)
+        self.courses = self.GetAllCourses()
         
         if self.args["role"] == "user":
             self.pushOpenAdmin.hide()
@@ -83,6 +83,19 @@ class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
         # MENU
         self.actionExit.triggered.connect(self.Logout)
         self.actionby_Nickolsky.triggered.connect(openGithub)
+
+        if self.courses:
+            for crs in self.courses:
+                self.listWidget.addItem(crs["title"])
+        else:
+            self.listWidget.addItem("Курсы не найдены, попробуйте обновить")
+
+    def GetAllCourses(self):
+        payload, err = self.req.getRequest("course/all")
+        if err != None:
+            self.Log(err, True)
+            return
+        return payload
     
     def Log(self, item, err=False):
         flag = ""
@@ -92,7 +105,6 @@ class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
         self.plainTextEdit.appendPlainText(f"[{time}] {flag} {item}")
 
     def OpenMyProfile(self):
-        
         payload, err = self.req.getRequest("user", tokenre=True)
         if err != None:
             self.Log(err, True)

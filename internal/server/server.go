@@ -99,6 +99,11 @@ func (s *Server) ConfigureRouter() {
 	// Get token
 	s.Router.POST("/auth", s.Auth())
 
+	// Get all courses
+	s.Router.GET("/course/all", s.GetAllCourses())
+	s.Router.POST("/course", s.CreateCourse())
+	// s.Router.POST("/course/delete", s.DeleteCourse()) // TODO
+
 	// =================== required USER auth =================== //
 	// Middleware: req token (user)
 	s.Router.Use(s.VerifyToken())
