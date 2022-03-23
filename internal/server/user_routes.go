@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -38,6 +39,45 @@ func (s *Server) CreateUser() gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, userNew)
+	}
+}
+
+func (s *Server) UpdateUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var u store.User
+
+		if err := c.BindJSON(&u); err != nil {
+			s.respondWithError(c, 401, "not updated")
+			return
+		}
+
+		userNew, err := s.Store.UpdateUser(u)
+		if err != nil {
+			s.respondWithError(c, 401, err.Error())
+			return
+		}
+
+		c.JSON(http.StatusCreated, userNew)
+	}
+}
+
+func (s *Server) DeleteUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		idStr := c.Query("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			s.respondWithError(c, 401, err.Error())
+			return
+		}
+
+		if err := s.Store.DeleteUser(id); err != nil {
+			s.respondWithError(c, 401, err.Error())
+			return
+		}
+
+		c.JSON(http.StatusCreated, store.Message{Content: fmt.Sprintf("user %s - deleted", idStr)})
 	}
 }
 

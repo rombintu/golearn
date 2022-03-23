@@ -3,6 +3,8 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 import requests
 from datetime import datetime
 
+import rest
+
 from lib import profile, golearn_auth, golearn_main
 
 def openGithub():
@@ -16,9 +18,12 @@ class WidgetMyProfile(QtWidgets.QWidget, profile.Ui_Form):
         super().__init__()
         self.setupUi(self)
         self.profileData = profileData
+        self.req = rest.NewRequest(profileData)
+
         print(self.profileData)
+
         self.my_id.setText(str(profileData["ID"]))
-        self.my_token.setText(profileData["password"])
+        self.my_token.setText(profileData["token"])
         self.labelAcc.setText(f"Аккаунт ({profileData['account']})")
         self.my_role.setText(profileData['role'])
 
@@ -29,27 +34,57 @@ class WidgetMyProfile(QtWidgets.QWidget, profile.Ui_Form):
         self.linePhone.setText(profileData["phone"])
         self.lineBthday.setText(str(profileData["date_of_birth"]))
 
-        
+        self.refreshDataBtn.clicked.connect(self.UpdateUserProfile)
+        self.deleteAccountBtn.clicked.connect(self.DeleteUserProfile)
+
+    def UpdateUserProfile(self):
+        user = {
+            "first_name": self.lineFName.text(),
+            "last_name": self.lineLName.text(),
+            "address": self.lineAddr.text(),
+            "mail": self.lineMail.text(),
+            "phone": self.linePhone.text(),
+            "date_of_birth": self.lineBthday.text(),
+        }
+
+        self.req.data = {**self.req.data, **user}
+
+        payload, err = self.req.getRequest("user/update", tokenre=True)
+        if err != None:
+            errorWin = QtWidgets.QErrorMessage(self)
+            errorWin.showMessage(str(err))
+            return
+        print(payload)
+        okWin = QtWidgets.QMessageBox.about(self, "Уведомление", "Данные успешно обновлены")
+    
+    def DeleteUserProfile(self):
+        payload, err = self.req.postRequest("user/delete", tokenre=True)
+        if err != None:
+            errorWin = QtWidgets.QErrorMessage(self)
+            errorWin.showMessage(str(err))
+            return
+        print(payload)
+        okWin = QtWidgets.QMessageBox.about(self, "Уведомление", "Аккаунт удален")
+        self.close()
+
 class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
     def __init__(self, args):
         super().__init__()
         self.args = args
         self.setupUi(self)
 
-        # self.model = QtGui.QStandardItemModel()
-        # self.listAudit.setModel(self.model)
-        # self.logger = self.listAudit.addI
+        self.req = rest.NewRequest(args)
+        
         if self.args["role"] == "user":
             self.pushOpenAdmin.hide()
         # BTNS
         self.pushMyProfile.clicked.connect(self.OpenMyProfile)
 
         # MENU
-        self.actionExit.triggered.connect(self.ExitProgramm)
+        self.actionExit.triggered.connect(self.Logout)
         self.actionby_Nickolsky.triggered.connect(openGithub)
     
     def Log(self, item, err=False):
-        # self.model.appendRow(QtGui.QStandardItem(item))
         flag = ""
         if err:
             flag = "ERROR"
@@ -57,50 +92,30 @@ class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
         self.plainTextEdit.appendPlainText(f"[{time}] {flag} {item}")
 
     def OpenMyProfile(self):
-        params={"id": self.args["ID"], "type": self.args["role"]}, 
-        headers={"token": self.args["password"]}
-        payload, err = self.getRequest(self.args, "user", params, headers)
+        
+        payload, err = self.req.getRequest("user", tokenre=True)
         if err != None:
             self.Log(err, True)
             return
+        payload["token"] = self.args["token"]
         self.profileWidjet = WidgetMyProfile(payload)
         self.profileWidjet.show()
         self.Log("Запрос данных аккаунта")
 
-    def ExitProgramm(self):
+    def Logout(self):
         self.windowAuth = AppAuth()
         self.close()
         self.windowAuth.show()
 
-    def getRequest(self, data, path, params, headers):
-        uri = data["server"]
-        # data.pop("server")
-        payload = {}
-        err = None
-        try:
-            resp = requests.get(
-                f'{uri}/{path}?id={data["ID"]}&type={data["role"]}', 
-                # params=params,
-                headers=headers,
-            )
-            payload = resp.json()
-        except Exception as err:
-            errorWin = QtWidgets.QErrorMessage(self)
-            errorWin.showMessage(str(err))
-            return {}, str(err)
-
-        try:
-            err = payload["error"]
-        except:
-            pass
-        return payload, err
-
+    
 class AppAuth(QtWidgets.QMainWindow, golearn_auth.Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.nextBtn.clicked.connect(self.golearnAuth)
-        self.regBtn.clicked.connect(self.golearnReg)
+        self.nextBtn.clicked.connect(self.Auth)
+        self.regBtn.clicked.connect(self.Reg)
+
+        self.req = rest.NewRequest()
 
         self.actionGithub.triggered.connect(openGithub)
         self.actionNoAccess.triggered.connect(openNoAccess) # TODO
@@ -109,35 +124,12 @@ class AppAuth(QtWidgets.QMainWindow, golearn_auth.Ui_MainWindow):
         self.windowMain = AppMain(args=args)
         self.windowMain.show()
 
-    def postRequest(self, data, path):
-        uri = data["server"]
-        # data.pop("server")
-        payload = {}
-        err = None
-        try:
-            resp = requests.post(f'{uri}/{path}', json=data)
-            payload = resp.json()
-            payload["server"] = data["server"]
-        except Exception as err:
-            errorWin = QtWidgets.QErrorMessage(self)
-            errorWin.showMessage(str(err))
-            return {}, str(err)
-
-        try:
-            err = payload["error"]
-        except:
-            pass
+    def SkipAuth(self, data):
+        self.req.data = data
+        payload, err = self.req.postRequest("auth")
         return payload, err
 
-    def auth(self, data):
-        payload, err = self.postRequest(data, "auth")
-        return payload, err
-
-    def registration(self, data):
-        payload, err = self.postRequest(data, "user")
-        return payload, err
-
-    def golearnAuth(self):
+    def Auth(self):
         data = {}
         data["server"] = self.lineServer.text()
         data["account"] = self.lineLogin.text()
@@ -148,25 +140,33 @@ class AppAuth(QtWidgets.QMainWindow, golearn_auth.Ui_MainWindow):
             data["role"] = roleCheck[-1]
             data["account"] = roleCheck[0]
 
-        payload, err = self.auth(data)
+        self.req.data = data
+        payload, err = self.req.postRequest("auth")
+
         print(payload)
+        
         if err != None:
-            self.label.setText(f"Вход* [{err}]")
+            errorWin = QtWidgets.QErrorMessage(self)
+            errorWin.showMessage(str(err))
             return
         self.showMain(payload)
         self.close()
 
-    def golearnReg(self):
+    def Reg(self):
         data = {}
         data["server"] = self.lineServer.text()
         data["account"] = self.lineLogin.text()
         data["password"] = self.linePassword.text()
-        payload, err = self.registration(data)
+
+        self.req.data = data
+        payload, err = self.req.postRequest("user")
+
         if err != None:
-            self.label.setText(f"Вход* [{err}]")
+            errorWin = QtWidgets.QErrorMessage(self)
+            errorWin.showMessage(str(err))
             return
-        self.showMain(payload)
-        self.hide()
+        
+        okWin = QtWidgets.QMessageBox.about(self, "Уведомление", "Регистрация прошла успешно")
 
 def main():
     app = QtWidgets.QApplication(sys.argv) 
@@ -176,7 +176,7 @@ def main():
     # DEVELOPMENT
     data = {"server": "http://localhost:5000", "account": "admin", "password": "admin", "role": "admin", }
     # data = {"server": "http://localhost:5000", "account": "user1", "password": "user1", "role": "user", }
-    payload, err = windowAuth.auth(data)
+    payload, err = windowAuth.SkipAuth(data)
     print(payload)
     if err != None:
         print(err)

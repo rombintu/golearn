@@ -21,8 +21,9 @@ type User struct {
 	Address     string        `json:"address"`
 	Mail        string        `json:"mail"`
 	Phone       string        `json:"phone"`
-	DateOfBirth time.Duration `json:"date_of_birth"`
+	DateOfBirth time.Time     `json:"date_of_birth"`
 	Declaration []Declaration `gorm:"foreignKey:UserID"`
+	Token       string        `gorm:"migration" json:"token"`
 }
 
 type Worker struct {

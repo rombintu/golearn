@@ -69,7 +69,8 @@ func (s *Server) Auth() gin.HandlerFunc {
 			s.respondWithError(c, 401, err.Error())
 			return
 		}
-		verifyUser.Password = token
+		verifyUser.Password = "$SECRET$"
+		verifyUser.Token = token
 		c.JSON(http.StatusCreated, verifyUser)
 	}
 }

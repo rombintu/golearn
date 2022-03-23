@@ -96,13 +96,13 @@ func (s *Server) ConfigureRouter() {
 
 	// Create user (registration)
 	s.Router.POST("/user", s.CreateUser())
-
 	// Get token
 	s.Router.POST("/auth", s.Auth())
 
 	// =================== required USER auth =================== //
 	// Middleware: req token (user)
 	s.Router.Use(s.VerifyToken())
+	s.Router.POST("/user/update", s.UpdateUser())
 
 	// Create new declaration: {title, user_id}
 	s.Router.POST("/paper/declaration/create", s.CreateDeclaration())
@@ -112,6 +112,7 @@ func (s *Server) ConfigureRouter() {
 	s.Router.POST("/paper/declaration/delete", s.DeleteDeclarationByUserIDAndTitle())
 
 	s.Router.GET("/user", s.GetUserByID())
+	s.Router.GET("/user/delete", s.DeleteUser())
 	// =================== required ADMIN auth =================== //
 	// Middleware: req token (admin)
 	s.Router.Use(s.VerifyTokenAdmin())
