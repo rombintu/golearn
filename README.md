@@ -40,8 +40,26 @@ make run_server
 ```
 Go to http://localhost:5000/ping
 
-### Клиент
+### Клиент CLI
 [Примеры](./examples/README.md)
+
+Сборка и запуск
+```
+go build -o golearncli cmd/server/main.go
+./golearncli --help
+```
+
+### Клиент GUI
+[Примеры](./docs/GUI_README.md)
+
+Сборка и запуск
+```
+python3 -m venv cmd/client/python-gui/venv
+source cmd/client/python-gui/venv/bin/activate
+pip install -r cmd/client/python-gui/requirements.txt
+python3 cmd/client/python-gui/main.py
+```
+
 ## Теги. Версии. Разработка
 v0.1.10
 * Исправлены ошибки
