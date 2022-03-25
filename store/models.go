@@ -55,7 +55,7 @@ type Course struct {
 	OfficePaper
 	Abount   string `json:"about"`
 	Tags     string `json:"tags"`
-	IsActive string `json:"is_active"`
+	IsActive bool   `json:"is_active"`
 }
 
 type Journal struct {

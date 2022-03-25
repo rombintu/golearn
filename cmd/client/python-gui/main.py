@@ -1,6 +1,6 @@
 import sys 
 from PyQt5 import QtWidgets, QtGui, QtCore
-import requests
+import requests, copy
 from datetime import datetime
 
 import rest
@@ -14,27 +14,27 @@ def openNoAccess():
     QtGui.QDesktopServices.openUrl(QtCore.QUrl("https://google.com")) # TODO
 
 class WidgetMyProfile(QtWidgets.QWidget, profile.Ui_Form):
-    def __init__(self, profileData):
+    def __init__(self, context):
         super().__init__()
         self.setupUi(self)
-        self.profileData = profileData
-        self.req = rest.NewRequest(profileData)
+        self.context = context
+        self.req = rest.NewRequest(context)
 
-        print(self.profileData)
+        print(self.context)
 
-        self.my_id.setText(str(profileData["ID"]))
-        self.my_token.setText(profileData["token"])
-        self.labelAcc.setText(f"Аккаунт ({profileData['account']})")
-        self.my_role.setText(profileData['role'])
+        self.my_id.setText(str(context["ID"]))
+        self.my_token.setText(context["token"])
+        self.labelAcc.setText(f"Аккаунт ({context['account']})")
+        self.my_role.setText(context['role'])
 
-        self.lineFName.setText(profileData["first_name"])
-        self.lineLName.setText(profileData["last_name"])
-        self.lineAddr.setText(profileData["address"])
-        self.lineMail.setText(profileData["mail"])
-        self.linePhone.setText(profileData["phone"])
-        self.lineBthday.setText(str(profileData["date_of_birth"]))
+        self.lineFName.setText(context["first_name"])
+        self.lineLName.setText(context["last_name"])
+        self.lineAddr.setText(context["address"])
+        self.lineMail.setText(context["mail"])
+        self.linePhone.setText(context["phone"])
+        self.lineBthday.setText(str(context["date_of_birth"]))
 
-        self.refreshDataBtn.clicked.connect(self.UpdateUserProfile)
+        self.refreshcontextBtn.clicked.connect(self.UpdateUserProfile)
         self.deleteAccountBtn.clicked.connect(self.DeleteUserProfile)
 
     def UpdateUserProfile(self):
@@ -47,7 +47,7 @@ class WidgetMyProfile(QtWidgets.QWidget, profile.Ui_Form):
             "date_of_birth": self.lineBthday.text(),
         }
 
-        self.req.data = {**self.req.data, **user}
+        self.req.context = {**self.req.context, **user}
 
         payload, err = self.req.getRequest("user/update", tokenre=True)
         if err != None:
@@ -68,48 +68,72 @@ class WidgetMyProfile(QtWidgets.QWidget, profile.Ui_Form):
         self.close()
 
 class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
-    def __init__(self, args):
+    def __init__(self, data):
         super().__init__()
-        self.args = args
         self.setupUi(self)
-        self.req = rest.NewRequest(args)
-        self.courses = self.GetAllCourses()
-        
-        if self.args["role"] == "user":
+        self.context = data
+
+        copy_data = copy.copy(data)
+        self.req = rest.NewRequest(copy_data)
+        self.courses = []
+        self.GetAllCourses()
+
+        print("PROFILE >> ", self.context)
+        # clicked = QtCore.pyqtSignal()
+
+        if self.context["role"] == "user":
             self.pushOpenAdmin.hide()
         # BTNS
         self.pushMyProfile.clicked.connect(self.OpenMyProfile)
+        self.pushRefreshCourses.clicked.connect(self.GetAllCourses)
 
         # MENU
         self.actionExit.triggered.connect(self.Logout)
         self.actionby_Nickolsky.triggered.connect(openGithub)
+
+        # Courses
+        self.listWidget.currentRowChanged.connect(lambda i: self.ViewCourse(i))
+
+    def GetAllCourses(self):
+        self.Log(message="Обновление курсов")
+        payload, err = self.req.getRequest("course/all")
+        if err != None:
+            self.Log(err, True)
+            return
+        self.courses = payload
+
+        self.listWidget.clear()
+        self.plainTextAboutCourse.clear()
+        self.lineTags.clear()
 
         if self.courses:
             for crs in self.courses:
                 self.listWidget.addItem(crs["title"])
         else:
             self.listWidget.addItem("Курсы не найдены, попробуйте обновить")
-
-    def GetAllCourses(self):
-        payload, err = self.req.getRequest("course/all")
-        if err != None:
-            self.Log(err, True)
-            return
-        return payload
+        self.Log(message="Курсы обновлены")
     
-    def Log(self, item, err=False):
+    def ViewCourse(self, index):
+        curItem = self.courses[index]
+        if curItem["is_active"]:
+            self.pushGetMeCourse.setEnabled()
+        self.lineTags.setText(curItem["tags"])
+        self.plainTextAboutCourse.setPlainText(curItem["about"])
+
+    def Log(self, message, err=False):
         flag = ""
         if err:
             flag = "ERROR"
         time = datetime.now().strftime("%H:%M:%S")
-        self.plainTextEdit.appendPlainText(f"[{time}] {flag} {item}")
+        self.plainTextEdit.appendPlainText(f"[{time}] {flag} {message}")
 
     def OpenMyProfile(self):
         payload, err = self.req.getRequest("user", tokenre=True)
         if err != None:
             self.Log(err, True)
             return
-        payload["token"] = self.args["token"]
+        # payload["token"] = self.context["token"]
+
         self.profileWidjet = WidgetMyProfile(payload)
         self.profileWidjet.show()
         self.Log("Запрос данных аккаунта")
@@ -132,13 +156,15 @@ class AppAuth(QtWidgets.QMainWindow, golearn_auth.Ui_MainWindow):
         self.actionGithub.triggered.connect(openGithub)
         self.actionNoAccess.triggered.connect(openNoAccess) # TODO
 
-    def showMain(self, args):
-        self.windowMain = AppMain(args=args)
+    def showMain(self, context):
+        print("SHOW MAIN >> ", context)
+        self.windowMain = AppMain(context)
         self.windowMain.show()
 
-    def SkipAuth(self, data):
-        self.req.data = data
+    def SkipAuth(self, context):
+        self.req.context = context
         payload, err = self.req.postRequest("auth")
+        print("SKIP CONTEXT >> ", payload)
         return payload, err
 
     def Auth(self):
@@ -152,7 +178,7 @@ class AppAuth(QtWidgets.QMainWindow, golearn_auth.Ui_MainWindow):
             data["role"] = roleCheck[-1]
             data["account"] = roleCheck[0]
 
-        self.req.data = data
+        self.req.context = data
         payload, err = self.req.postRequest("auth")
 
         print(payload)
@@ -170,7 +196,7 @@ class AppAuth(QtWidgets.QMainWindow, golearn_auth.Ui_MainWindow):
         data["account"] = self.lineLogin.text()
         data["password"] = self.linePassword.text()
 
-        self.req.data = data
+        self.req.context = data
         payload, err = self.req.postRequest("user")
 
         if err != None:
