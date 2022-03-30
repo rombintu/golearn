@@ -101,13 +101,11 @@ func (s *Server) ConfigureRouter() {
 
 	// Get all courses
 	s.Router.GET("/course/all", s.GetAllCourses())
-	s.Router.POST("/course", s.CreateCourse())
 	// s.Router.POST("/course/delete", s.DeleteCourse()) // TODO
 
 	// =================== required USER auth =================== //
 	// Middleware: req token (user)
 	s.Router.Use(s.VerifyToken())
-	s.Router.POST("/user/update", s.UpdateUser())
 
 	// Create new declaration: {title, user_id}
 	s.Router.POST("/paper/declaration/create", s.CreateDeclaration())
@@ -118,10 +116,12 @@ func (s *Server) ConfigureRouter() {
 
 	s.Router.GET("/user", s.GetUserByID())
 	s.Router.GET("/user/delete", s.DeleteUser())
+	s.Router.POST("/user/update", s.UpdateUser())
 	// =================== required ADMIN auth =================== //
 	// Middleware: req token (admin)
 	s.Router.Use(s.VerifyTokenAdmin())
 
+	s.Router.POST("/course", s.CreateCourse())
 	// require: id? [type]?
 
 	// Create workers && teachers

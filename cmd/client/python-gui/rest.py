@@ -11,7 +11,6 @@ def getToken(creds):
 
     return payload, err
 
-print(getToken({"server": "http://localhost:5000", "account": "admin", "password": "admin", "role": "admin", }))
 class NewRequest:
 
     def __init__(self, context={}):
@@ -47,11 +46,15 @@ class NewRequest:
         if not tokenre:
             self.context["token"] = ""
 
-        # print("GET >>", self.context)
         resp = requests.get(
             f'{self.context["server"]}/{path}?id={self.context["ID"]}&type={self.context["role"]}', 
             headers={"token": self.context["token"]},
         )
+        
+        if resp.status_code >= 400:
+            err = "Status code 404"
+            return {}, err
+
         payload = resp.json()
         
         if type(payload) == "dict":

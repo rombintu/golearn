@@ -48,13 +48,6 @@
       <item>
        <widget class="QListWidget" name="listWidget"/>
       </item>
-      <item>
-       <widget class="QPushButton" name="execBtn">
-        <property name="text">
-         <string>Выполнить</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>

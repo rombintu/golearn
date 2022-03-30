@@ -32,9 +32,6 @@ class Ui_Form(object):
         self.listWidget = QtWidgets.QListWidget(self.frame_2)
         self.listWidget.setObjectName("listWidget")
         self.verticalLayout_3.addWidget(self.listWidget)
-        self.execBtn = QtWidgets.QPushButton(self.frame_2)
-        self.execBtn.setObjectName("execBtn")
-        self.verticalLayout_3.addWidget(self.execBtn)
         self.gridLayout.addWidget(self.frame_2, 0, 0, 1, 1)
 
         self.retranslateUi(Form)
@@ -44,4 +41,3 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Actions"))
         self.label.setText(_translate("Form", "Действия"))
-        self.execBtn.setText(_translate("Form", "Выполнить"))
