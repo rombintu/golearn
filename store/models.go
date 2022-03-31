@@ -46,9 +46,9 @@ type OfficePaper struct {
 
 type Declaration struct {
 	OfficePaper
-	Date    time.Duration `json:"date"`
-	Content string        `json:"content"`
-	UserID  int           `json:"user_id"`
+	Date    time.Time `json:"date"`
+	Content string    `json:"content"`
+	UserID  int       `json:"user_id"`
 }
 
 type Course struct {
@@ -66,10 +66,10 @@ type Journal struct {
 
 type Contract struct {
 	OfficePaper
-	Date           time.Duration `json:"date"`
-	ValidatyPeriod time.Duration `json:"validaty_period"`
-	Content        string        `json:"content"`
-	Amount         int           `json:"amount"`
+	Date           time.Time `json:"date"`
+	ValidatyPeriod time.Time `json:"validaty_period"`
+	Content        string    `json:"content"`
+	Amount         int       `json:"amount"`
 	UserRefer      int
 	User           User `gorm:"foreignKey:UserRefer"`
 	WorkerRefer    int
@@ -78,30 +78,30 @@ type Contract struct {
 
 type Payment struct {
 	OfficePaper
-	Amount int           `json:"amount"`
-	Date   time.Duration `json:"date"`
+	Amount int       `json:"amount"`
+	Date   time.Time `json:"date"`
 }
 
 type Services struct {
 	OfficePaper
-	DateStart time.Duration `json:"date_start"`
-	DateEnd   time.Duration `json:"date_end"`
+	DateStart time.Time `json:"date_start"`
+	DateEnd   time.Time `json:"date_end"`
 }
 
 type Refferal struct {
 	OfficePaper
-	ServiceEnd    time.Duration `json:"service_end"`
-	ServiceAmount int           `json:"service_amount"`
+	ServiceEnd    time.Time `json:"service_end"`
+	ServiceAmount int       `json:"service_amount"`
 }
 
 type Plan struct {
 	OfficePaper
-	DateStart    time.Duration
-	DateEnd      time.Duration
+	DateStart    time.Time
+	DateEnd      time.Time
 	Kind         string
 	Place        string
 	Agree        bool
-	DateTransfer time.Duration
+	DateTransfer time.Time
 	GroupRefer   int
 	Group        Group `gorm:"foreignKey:GroupRefer"`
 	TeacherRefer int
@@ -112,10 +112,10 @@ type Plan struct {
 
 type Group struct {
 	gorm.Model
-	Title            string        `json:"title" gorm:"unique"`
-	DateOfEnrollment time.Duration `json:"date_of_enrollment"`
-	DateOfDeducation time.Duration `json:"date_od_deducation"`
-	Users            []User        `gorm:"many2many:group_users;"`
+	Title            string    `json:"title" gorm:"unique"`
+	DateOfEnrollment time.Time `json:"date_of_enrollment"`
+	DateOfDeducation time.Time `json:"date_od_deducation"`
+	Users            []User    `gorm:"many2many:group_users;"`
 }
 
 type GroupUsers struct {

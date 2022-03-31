@@ -8,7 +8,12 @@ from lib import profile, actions
 
 const_Actions = {
     "create_course": "Создать курс",
-    "delete_course": "Удалить курс"
+    "delete_course": "Удалить курс",
+    "create_contract": "Составить договор",
+    "show_contracts": "Выборка всех договоров",
+    "delete_contract": "Отменить договор",
+    "sign_contratc": "Подписать документ ЭЦП",
+    "unsign_contract": "Проверить ЭЦП",
 }
 
 const_success = "Операция прошла успешно"
