@@ -16,19 +16,45 @@ class NewRequest:
     def __init__(self, context={}):
         self.context = context
 
+    def downloadFile(self, path, filename):
+        resp = requests.get(
+            f'{self.context["server"]}/{path}?filename={filename}',
+            headers={"token": self.context["token"]},
+        )
+        return resp.content
+
+    def uploadFile(self, path, fileData):
+        payload = {}        
+        err = None
+        resp = requests.post(
+            f'{self.context["server"]}/{path}',
+            headers={"token": self.context["token"]},
+            files=fileData,
+        )
+        payload = resp.json()
+        payload["server"] = self.context["server"]
+
+        try:
+            err = payload["error"]
+        except:
+            pass
+
+        return payload, err
 
     def postRequest(self, path, tokenre=False):
-        payload = {}
+        payload = {}        
         err = None
 
         if not tokenre:
             self.context["token"] = ""
 
+        
         resp = requests.post(
             f'{self.context["server"]}/{path}', 
             json=self.context, 
-            headers={"token": self.context["token"]}
+            headers={"token": self.context["token"]},
         )
+        
         payload = resp.json()
         payload["server"] = self.context["server"]
 

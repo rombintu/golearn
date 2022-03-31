@@ -41,7 +41,7 @@ type Teacher struct {
 
 type OfficePaper struct {
 	gorm.Model
-	Title string `json:"title"`
+	Title string `json:"title" gorm:"unique"`
 }
 
 type Declaration struct {

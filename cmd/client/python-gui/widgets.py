@@ -1,9 +1,9 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 import copy
 from datetime import datetime
 
-import rest
-
+import rest, requests
+from tools import zipper
 from lib import profile, actions
 
 const_Actions = {
@@ -41,17 +41,66 @@ class DialogCreateCourse(QtWidgets.QDialog):
 
         self.plainAbout = QtWidgets.QPlainTextEdit(self)
         self.plainAbout.setPlaceholderText("Описание")
+        
+        self.dataFile = None
+        self.pushOpenFile = QtWidgets.QPushButton(self)
+        self.pushOpenFile.setText("Прикрепить файл")
+        self.pushOpenFile.clicked.connect(self.getCourseFile)
+        
         self.layout.addWidget(self.plainAbout) 
+        self.layout.addWidget(self.pushOpenFile)
         self.layout.addWidget(self.buttonBox)
-
         self.setLayout(self.layout)
+    
+    def getCourseFile(self):
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        openFile = QtWidgets.QFileDialog.getOpenFileName(self, "Выберите файл")[0]
+        if openFile:
+            self.dataFile = openFile
 
     def createCourse(self):
         return {
             "title": self.lineName.text(),
             "about": self.plainAbout.toPlainText(),
-            "tags": self.lineTags.text()
+            "tags": self.lineTags.text(),
+            "file": self.dataFile
         }
+
+class DialogOpenMyCourses(QtWidgets.QDialog):
+    def __init__(self, parent=None, courses=[]):
+        super().__init__(parent)
+        self.courses = courses
+        self.setWindowTitle("MyCourses")
+        self.layout = QtWidgets.QVBoxLayout()
+        self.layout.addWidget(QtWidgets.QLabel("Мои курсы"))
+        
+        self.items = QtWidgets.QListWidget(self)
+        
+        for crs in self.courses:
+            self.items.addItem(crs["title"])
+
+        self.pushDload = QtWidgets.QPushButton(self)
+        self.pushDload.setText("Скачать .zip")
+        self.pushDload.clicked.connect(self.downloadCourse)
+
+        self.layout.addWidget(self.items)
+        self.layout.addWidget(self.pushDload)
+        self.setLayout(self.layout)
+
+    def downloadCourse(self):
+        if not self.courses:
+            return 
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        saveFile = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить')[0]
+        if saveFile:
+            # files = []
+            # for crs in self.courses:
+            #     files.append(
+                    
+            #     ) TODO
+            zipper.Create_zip_file(saveFile, self.courses)
 
 class WidgetActions(QtWidgets.QWidget, actions.Ui_Form):
     def __init__(self, context):
@@ -88,7 +137,17 @@ class WidgetActions(QtWidgets.QWidget, actions.Ui_Form):
                     errorWin = QtWidgets.QErrorMessage(self)
                     errorWin.showMessage(str(err))
                     return
-                print(payload)
+                payloadFileUpload, err = self.req.uploadFile(
+                    "course/upload", 
+                    fileData={
+                        "file": (data["title"], open(data["file"], "rb"))
+                        }
+                    )
+                if err != None:
+                    errorWin = QtWidgets.QErrorMessage(self)
+                    errorWin.showMessage(str(err))
+                    return
+                print(payload, payloadFileUpload)
                 okWin = QtWidgets.QMessageBox.about(self, const_notice, const_success)
 
         elif i == const_Actions["delete_course"]:

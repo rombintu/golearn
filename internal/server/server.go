@@ -91,6 +91,7 @@ func (s *Server) ConfigureLogger() error {
 
 // Add routes
 func (s *Server) ConfigureRouter() {
+	s.Router.Static("/store/upload", "/var/www/static")
 	// Test connect
 	s.Router.GET("/ping", s.Ping())
 
@@ -117,11 +118,14 @@ func (s *Server) ConfigureRouter() {
 	s.Router.GET("/user", s.GetUserByID())
 	s.Router.GET("/user/delete", s.DeleteUser())
 	s.Router.POST("/user/update", s.UpdateUser())
+
+	s.Router.POST("/course/download", s.DownloadCourse())
 	// =================== required ADMIN auth =================== //
 	// Middleware: req token (admin)
 	s.Router.Use(s.VerifyTokenAdmin())
 
 	s.Router.POST("/course", s.CreateCourse())
+	s.Router.POST("/course/upload", s.UploadCourse())
 	// require: id? [type]?
 
 	// Create workers && teachers
@@ -152,6 +156,7 @@ func (s *Server) ConfigureStore() error {
 		&store.Services{},
 		&store.Refferal{},
 		&store.Group{},
+		// &store.ContentCourse{},
 		// &store.UserGroup{},
 	)
 	if err := s.Store.Database.SetupJoinTable(

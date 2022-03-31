@@ -23,14 +23,15 @@ class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
         self.GetAllCourses()
 
         print("PROFILE >> ", self.context)
-        # clicked = QtCore.pyqtSignal()
-
+        
+        print("COURSES >> ", self.courses)
         if self.context["role"] == "user":
             self.pushOpenAdmin.hide()
         # BTNS
         self.pushMyProfile.clicked.connect(self.OpenMyProfile)
         self.pushOpenAdmin.clicked.connect(self.OpenActions)
         self.pushRefreshCourses.clicked.connect(self.GetAllCourses)
+        self.pushMyCourses.clicked.connect(self.OpenMyCourses)
 
         # MENU
         self.actionExit.triggered.connect(self.Auditout)
@@ -59,7 +60,10 @@ class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
         self.Audit(message="Курсы обновлены")
     
     def ViewCourse(self, index):
-        curItem = self.courses[index]
+        try:
+            curItem = self.courses[index]
+        except:
+            return
         if curItem["is_active"]:
             self.pushGetMeCourse.setEnabled()
         self.lineTags.setText(curItem["tags"])
@@ -84,6 +88,10 @@ class AppMain(QtWidgets.QMainWindow, golearn_main.Ui_MainWindow):
         self.profileWidjet = widgets.WidgetMyProfile(payload)
         self.profileWidjet.show()
         self.Audit("Запрос данных аккаунта")
+
+    def OpenMyCourses(self):
+        dialog = widgets.DialogOpenMyCourses(self, courses=self.courses)
+        dialog.exec_()
 
     def OpenActions(self):
         self.adminWidget = widgets.WidgetActions(self.context)
